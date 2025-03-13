@@ -43,6 +43,7 @@ func HandleRequest(c *fiber.Ctx) error {
 			return persistenceError
 		}
 
+		defer repository.CloseConnection()
 		defer unitOfWork.Rollback()
 
 		importResult, importError := employees_import.Handle(parseResult.Result, repository, unitOfWork)

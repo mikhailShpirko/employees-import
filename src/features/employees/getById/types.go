@@ -13,7 +13,7 @@ type BaseGetByIdEmployeeResult struct{}
 type EmployeeExists struct {
 	BaseGetByIdEmployeeResult
 
-	Employee employees.Employee
+	Employee *employees.Employee
 }
 
 type EmployeeNotExists struct {
@@ -21,5 +21,5 @@ type EmployeeNotExists struct {
 }
 
 type IGetByIdEmployeeRepository interface {
-	GetById(id uuid.UUID) (bool, employees.Employee, error)
+	GetById(id uuid.UUID) (bool, *employees.Employee, error)
 }

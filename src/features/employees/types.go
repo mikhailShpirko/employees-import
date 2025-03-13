@@ -25,7 +25,7 @@ type Employee struct {
 	Id uuid.UUID
 }
 
-func NewEmployee(
+func CreateEmployeeData(
 	payrollNumber string,
 	forenames string,
 	surname string,
@@ -36,7 +36,7 @@ func NewEmployee(
 	addressLine2 string,
 	postcode string,
 	email string,
-	startDate time.Time) EmployeeData {
+	startDate time.Time) *EmployeeData {
 
 	var employee EmployeeData
 	employee.PayrollNumber = payrollNumber
@@ -51,10 +51,10 @@ func NewEmployee(
 	employee.Email = email
 	employee.StartDate = startDate
 
-	return employee
+	return &employee
 }
 
-func ExistingEmployee(
+func CreateEmployee(
 	id uuid.UUID,
 	payrollNumber string,
 	forenames string,
@@ -66,10 +66,10 @@ func ExistingEmployee(
 	addressLine2 string,
 	postcode string,
 	email string,
-	startDate time.Time) Employee {
+	startDate time.Time) *Employee {
 
 	var employee Employee
-	employee.EmployeeData = NewEmployee(payrollNumber,
+	employee.EmployeeData = *CreateEmployeeData(payrollNumber,
 		forenames,
 		surname,
 		dateOfBirth,
@@ -83,5 +83,5 @@ func ExistingEmployee(
 
 	employee.Id = id
 
-	return employee
+	return &employee
 }

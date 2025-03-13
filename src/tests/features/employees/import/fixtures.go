@@ -15,11 +15,11 @@ func (repository *MockImportEmployeeRepository) GetPayrollNumberToIdMap() (map[s
 	return repository.PayrollIdMap, nil
 }
 
-func (repository *MockImportEmployeeRepository) Create(employee employees.Employee) error {
+func (repository *MockImportEmployeeRepository) Create(employee *employees.Employee) error {
 	return nil
 }
 
-func (repository *MockImportEmployeeRepository) Update(employee employees.Employee) error {
+func (repository *MockImportEmployeeRepository) Update(employee *employees.Employee) error {
 	return nil
 }
 
@@ -31,11 +31,11 @@ func (repository *MockFailGetPayrollNumberToIdMapImportEmployeeRepository) GetPa
 	return nil, errors.New("FailGetPayrollNumberToIdMap")
 }
 
-func (repository *MockFailGetPayrollNumberToIdMapImportEmployeeRepository) Create(employee employees.Employee) error {
+func (repository *MockFailGetPayrollNumberToIdMapImportEmployeeRepository) Create(employee *employees.Employee) error {
 	return nil
 }
 
-func (repository *MockFailGetPayrollNumberToIdMapImportEmployeeRepository) Update(employee employees.Employee) error {
+func (repository *MockFailGetPayrollNumberToIdMapImportEmployeeRepository) Update(employee *employees.Employee) error {
 	return nil
 }
 
@@ -47,11 +47,11 @@ func (repository *MockFailCreateImportEmployeeRepository) GetPayrollNumberToIdMa
 	return repository.PayrollIdMap, nil
 }
 
-func (repository *MockFailCreateImportEmployeeRepository) Create(employee employees.Employee) error {
+func (repository *MockFailCreateImportEmployeeRepository) Create(employee *employees.Employee) error {
 	return errors.New("FailCreate")
 }
 
-func (repository *MockFailCreateImportEmployeeRepository) Update(employee employees.Employee) error {
+func (repository *MockFailCreateImportEmployeeRepository) Update(employee *employees.Employee) error {
 	return nil
 }
 
@@ -63,10 +63,10 @@ func (repository *MockFailUpdateImportEmployeeRepository) GetPayrollNumberToIdMa
 	return repository.PayrollIdMap, nil
 }
 
-func (repository *MockFailUpdateImportEmployeeRepository) Create(employee employees.Employee) error {
+func (repository *MockFailUpdateImportEmployeeRepository) Create(employee *employees.Employee) error {
 	return nil
 }
 
-func (repository *MockFailUpdateImportEmployeeRepository) Update(employee employees.Employee) error {
+func (repository *MockFailUpdateImportEmployeeRepository) Update(employee *employees.Employee) error {
 	return errors.New("FailUpdate")
 }

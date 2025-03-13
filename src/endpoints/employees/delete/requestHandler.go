@@ -23,6 +23,7 @@ func HandleRequest(c *fiber.Ctx) error {
 		return persistenceError
 	}
 
+	defer repository.CloseConnection()
 	defer unitOfWork.Rollback()
 
 	result, err := employees_delete.Handle(id, repository, unitOfWork)

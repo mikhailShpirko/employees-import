@@ -24,6 +24,8 @@ func HandleRequest(c *fiber.Ctx) error {
 		return persistenceError
 	}
 
+	defer repository.CloseConnection()
+
 	employeeResult, getByIdError := employees_getById.Handle(id, repository)
 
 	if getByIdError != nil {

@@ -17,7 +17,7 @@ func Handle(employeesData []employees.EmployeeData,
 
 	now := time.Now()
 	for _, employeeData := range employeesData {
-		validationErrors := employees.Validate(employeeData, now)
+		validationErrors := employees.Validate(&employeeData, now)
 
 		if validationErrors != nil {
 			invalidEmployeeData = append(invalidEmployeeData,
@@ -44,7 +44,7 @@ func Handle(employeesData []employees.EmployeeData,
 
 		if exists {
 			employee.Id = id
-			updateError := repository.Update(employee)
+			updateError := repository.Update(&employee)
 
 			if updateError != nil {
 				return nil, updateError
@@ -54,7 +54,7 @@ func Handle(employeesData []employees.EmployeeData,
 
 		} else {
 			employee.Id = uuid.New()
-			createError := repository.Create(employee)
+			createError := repository.Create(&employee)
 
 			if createError != nil {
 				return nil, createError

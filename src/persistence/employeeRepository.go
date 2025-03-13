@@ -18,6 +18,11 @@ type employeeRepository struct {
 	context     context.Context
 }
 
+func (repository *employeeRepository) CloseConnection() {
+	repository.transaction.Conn().Close(repository.context)
+	repository.connection.Reset()
+}
+
 func (repository *employeeRepository) GetAll() ([]employees.Employee, error) {
 
 	sql := `
@@ -53,13 +58,13 @@ ORDER BY "created_at"`
 	employees := []employees.Employee{}
 
 	for _, item := range data {
-		employees = append(employees, mapToEmployee(item))
+		employees = append(employees, *mapToEmployee(item))
 	}
 
 	return employees, nil
 }
 
-func (repository *employeeRepository) GetById(id uuid.UUID) (bool, employees.Employee, error) {
+func (repository *employeeRepository) GetById(id uuid.UUID) (bool, *employees.Employee, error) {
 
 	sql := `
 SELECT "id", 
@@ -81,14 +86,15 @@ WHERE "id" = $1
 `
 
 	row, _ := repository.connection.Query(repository.context, sql, id)
+
 	employee, err := pgx.CollectExactlyOneRow(row, pgx.RowToStructByName[employee])
 
 	if err != nil {
 
 		if errors.Is(err, pgx.ErrNoRows) {
-			return false, employees.Employee{}, nil
+			return false, nil, nil
 		}
-		return false, employees.Employee{}, err
+		return false, nil, err
 	}
 
 	return true, mapToEmployee(employee), nil
@@ -173,7 +179,7 @@ WHERE "id" = $1`
 	return count > 0, nil
 }
 
-func (repository *employeeRepository) Create(employee employees.Employee) error {
+func (repository *employeeRepository) Create(employee *employees.Employee) error {
 	sql := `
 INSERT INTO "employees"(
 	"id", 
@@ -214,7 +220,7 @@ VALUES ($1, $2, $3, $4, $5, $6, $7, $8, $9, $10, $11, $12, $13, $14)`
 	return err
 }
 
-func (repository *employeeRepository) Update(employee employees.Employee) error {
+func (repository *employeeRepository) Update(employee *employees.Employee) error {
 	sql := `
 UPDATE "employees"
 SET "payroll_number" = $1, 
@@ -283,8 +289,8 @@ type idAndPayrollNumber struct {
 	PayrollNumber string    `db:"payroll_number"`
 }
 
-func mapToEmployee(employee employee) employees.Employee {
-	return employees.ExistingEmployee(employee.Id,
+func mapToEmployee(employee employee) *employees.Employee {
+	return employees.CreateEmployee(employee.Id,
 		employee.PayrollNumber,
 		employee.Forenames,
 		employee.Surname,

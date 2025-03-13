@@ -98,7 +98,7 @@ func (suite *EmployeeRepositoryTestSuite) Test_01_Create() {
 	}
 
 	for _, emp := range suite.employees {
-		repoErr := repo.Create(emp)
+		repoErr := repo.Create(&emp)
 
 		if repoErr != nil {
 			t.Fatalf(`Failed to Create %v : %v`, emp, repoErr)
@@ -132,7 +132,7 @@ func (suite *EmployeeRepositoryTestSuite) Test_02_Update() {
 	newDateOfBirth, _ := time.Parse(time.DateOnly, "1991-11-12")
 	newStartDate, _ := time.Parse(time.DateOnly, "2023-05-16")
 
-	suite.employees[suite.updatedEmployeeIndex] = employees.ExistingEmployee(suite.employees[suite.updatedEmployeeIndex].Id,
+	suite.employees[suite.updatedEmployeeIndex] = *employees.CreateEmployee(suite.employees[suite.updatedEmployeeIndex].Id,
 		"99",
 		"Changed Forename",
 		"Changed Surname",
@@ -145,7 +145,7 @@ func (suite *EmployeeRepositoryTestSuite) Test_02_Update() {
 		"changed.email@test.go",
 		newStartDate)
 
-	repoErr := repo.Update(suite.employees[suite.updatedEmployeeIndex])
+	repoErr := repo.Update(&suite.employees[suite.updatedEmployeeIndex])
 
 	if repoErr != nil {
 		t.Fatalf(`Failed to Update %v : %v`, suite.employees[suite.updatedEmployeeIndex], repoErr)
@@ -185,7 +185,7 @@ func (suite *EmployeeRepositoryTestSuite) Test_03_GetById_ExistingEmployee() {
 		t.Fatalf(`Employee %v should be existing`, expected.Id)
 	}
 
-	if employee != expected {
+	if *employee != expected {
 		t.Fatalf(`Wrong employee returned. Expected %v, Actual %v`, expected, employee)
 	}
 }
@@ -533,7 +533,7 @@ func createEmployee(id uuid.UUID, payrollNumber string) employees.Employee {
 	dateOfBirth, _ := time.Parse(time.DateOnly, "1990-12-11")
 	startDate, _ := time.Parse(time.DateOnly, "2025-10-24")
 
-	return employees.ExistingEmployee(id,
+	return *employees.CreateEmployee(id,
 		payrollNumber,
 		"Forename",
 		"Surname",

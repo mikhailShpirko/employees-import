@@ -9,7 +9,7 @@ import (
 	"github.com/google/uuid"
 )
 
-func Handle(employeeData employees.EmployeeData,
+func Handle(employeeData *employees.EmployeeData,
 	repository ICreateEmployeeRepository,
 	unitOfWork common_types.IUnitOfWork) (ICreateEmployeeResult, error) {
 
@@ -31,9 +31,9 @@ func Handle(employeeData employees.EmployeeData,
 
 	var employee employees.Employee
 	employee.Id = uuid.New()
-	employee.EmployeeData = employeeData
+	employee.EmployeeData = *employeeData
 
-	createError := repository.Create(employee)
+	createError := repository.Create(&employee)
 
 	if createError != nil {
 		return nil, createError

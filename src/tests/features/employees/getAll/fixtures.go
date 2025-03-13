@@ -12,7 +12,7 @@ type MockGetAllEmployeeExistsRepository struct {
 }
 
 func (repository *MockGetAllEmployeeExistsRepository) GetAll() ([]employees.Employee, error) {
-	return []employees.Employee{common.ValidExistingEmployee(uuid.New()), common.ValidExistingEmployee(uuid.New()), common.ValidExistingEmployee(uuid.New())}, nil
+	return []employees.Employee{*common.ValidExistingEmployee(uuid.New()), *common.ValidExistingEmployee(uuid.New()), *common.ValidExistingEmployee(uuid.New())}, nil
 }
 
 type MockFailGetAllGetAllEmployeeRepository struct{}

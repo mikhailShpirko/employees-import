@@ -13,7 +13,7 @@ func (repository *MockCreateEmployeeRepository) IsPayrollNumberExist(payrollNumb
 	return repository.PayrollExists, nil
 }
 
-func (repository *MockCreateEmployeeRepository) Create(employee employees.Employee) error {
+func (repository *MockCreateEmployeeRepository) Create(employee *employees.Employee) error {
 	return nil
 }
 
@@ -23,7 +23,7 @@ func (repository *MockFailPayrollNumberExistsCreateEmployeeRepository) IsPayroll
 	return false, errors.New("FailPayrollNumberExists")
 }
 
-func (repository *MockFailPayrollNumberExistsCreateEmployeeRepository) Create(employee employees.Employee) error {
+func (repository *MockFailPayrollNumberExistsCreateEmployeeRepository) Create(employee *employees.Employee) error {
 	return nil
 }
 
@@ -33,6 +33,6 @@ func (repository *MockFailCreateCreateEmployeeRepository) IsPayrollNumberExist(p
 	return false, nil
 }
 
-func (repository *MockFailCreateCreateEmployeeRepository) Create(employee employees.Employee) error {
+func (repository *MockFailCreateCreateEmployeeRepository) Create(employee *employees.Employee) error {
 	return errors.New("FailCreate")
 }

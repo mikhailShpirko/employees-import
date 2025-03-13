@@ -23,7 +23,7 @@ func Test_Employees_Update_Import_ValidData_SuccessfullyImported(t *testing.T) {
 
 	unitOfWork := common.MockSuccessUnitOfWork{}
 
-	result, err := import_handler.Handle([]employees.EmployeeData{existingEmployee.EmployeeData, newEmployee}, &repository, &unitOfWork)
+	result, err := import_handler.Handle([]employees.EmployeeData{existingEmployee.EmployeeData, *newEmployee}, &repository, &unitOfWork)
 
 	if err != nil {
 		t.Fatalf(`Import Employee Handler returned error %v`, err)
@@ -100,7 +100,7 @@ func Test_Employees_Update_Import_PartiallyInvalidData_ValidationErrors(t *testi
 
 	unitOfWork := common.MockSuccessUnitOfWork{}
 
-	result, err := import_handler.Handle([]employees.EmployeeData{employee1, employee2, validEmployee}, &repository, &unitOfWork)
+	result, err := import_handler.Handle([]employees.EmployeeData{employee1, employee2, *validEmployee}, &repository, &unitOfWork)
 
 	if err != nil {
 		t.Fatalf(`Import Employee Handler returned error %v`, err)
@@ -130,7 +130,7 @@ func Test_Employees_Update_Import_GetPayrollNumberToIdMapReturnsError_Error(t *t
 
 	unitOfWork := common.MockSuccessUnitOfWork{}
 
-	result, err := import_handler.Handle([]employees.EmployeeData{existingEmployee.EmployeeData, newEmployee}, &repository, &unitOfWork)
+	result, err := import_handler.Handle([]employees.EmployeeData{existingEmployee.EmployeeData, *newEmployee}, &repository, &unitOfWork)
 
 	if err == nil {
 		t.Fatalf(`Import Employee Handler didn't return error %v`, result)
@@ -154,7 +154,7 @@ func Test_Employees_Update_Import_CreateReturnsError_Error(t *testing.T) {
 
 	unitOfWork := common.MockSuccessUnitOfWork{}
 
-	result, err := import_handler.Handle([]employees.EmployeeData{existingEmployee.EmployeeData, newEmployee}, &repository, &unitOfWork)
+	result, err := import_handler.Handle([]employees.EmployeeData{existingEmployee.EmployeeData, *newEmployee}, &repository, &unitOfWork)
 
 	if err == nil {
 		t.Fatalf(`Import Employee Handler didn't return error %v`, result)
@@ -178,7 +178,7 @@ func Test_Employees_Update_Import_UpdateReturnsError_Error(t *testing.T) {
 
 	unitOfWork := common.MockSuccessUnitOfWork{}
 
-	result, err := import_handler.Handle([]employees.EmployeeData{existingEmployee.EmployeeData, newEmployee}, &repository, &unitOfWork)
+	result, err := import_handler.Handle([]employees.EmployeeData{existingEmployee.EmployeeData, *newEmployee}, &repository, &unitOfWork)
 
 	if err == nil {
 		t.Fatalf(`Import Employee Handler didn't return error %v`, result)
@@ -202,7 +202,7 @@ func Test_Employees_Update_Import_UnitOfWorkReturnsError_Error(t *testing.T) {
 
 	unitOfWork := common.MockFailUnitOfWork{}
 
-	result, err := import_handler.Handle([]employees.EmployeeData{existingEmployee.EmployeeData, newEmployee}, &repository, &unitOfWork)
+	result, err := import_handler.Handle([]employees.EmployeeData{existingEmployee.EmployeeData, *newEmployee}, &repository, &unitOfWork)
 
 	if err == nil {
 		t.Fatalf(`Import Employee Handler didn't return error %v`, result)

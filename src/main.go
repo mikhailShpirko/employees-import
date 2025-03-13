@@ -37,7 +37,7 @@ func handleError(c *fiber.Ctx, err error) error {
 		m.Status = e.Code
 		m.Message = e.Message
 	} else {
-		fiberLog.Error(`Unexpected error %v`, err)
+		fiberLog.Error(`Unexpected error`, err)
 	}
 
 	return c.Status(m.Status).JSON(m)

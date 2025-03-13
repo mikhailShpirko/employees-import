@@ -27,5 +27,5 @@ type PayrollNumberAlreadyExists struct {
 
 type ICreateEmployeeRepository interface {
 	IsPayrollNumberExist(payrollNumber string) (bool, error)
-	Create(employee employees.Employee) error
+	Create(employee *employees.Employee) error
 }

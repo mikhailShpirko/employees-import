@@ -25,9 +25,10 @@ func HandleRequest(c *fiber.Ctx) error {
 		return persistenceError
 	}
 
+	defer repository.CloseConnection()
 	defer unitOfWork.Rollback()
 
-	result, err := employees_create.Handle(employees.NewEmployee(dto.PayrollNumber,
+	result, err := employees_create.Handle(employees.CreateEmployeeData(dto.PayrollNumber,
 		dto.Forenames,
 		dto.Surname,
 		dto.DateOfBirth.Time,

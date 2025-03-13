@@ -8,12 +8,12 @@ import (
 	"github.com/google/uuid"
 )
 
-func Test_NewEmployee_FieldsMappedProperly(t *testing.T) {
+func Test_CreateEmployeeData_FieldsMappedProperly(t *testing.T) {
 
 	dateOfBirth, _ := time.Parse(time.DateOnly, "1990-12-11")
 	startDate, _ := time.Parse(time.DateOnly, "2025-10-24")
 
-	employee := employees.NewEmployee("TEST_PayrollNumber",
+	employee := employees.CreateEmployeeData("TEST_PayrollNumber",
 		"TEST_Forenames",
 		"TEST_Surname",
 		dateOfBirth,
@@ -70,12 +70,12 @@ func Test_NewEmployee_FieldsMappedProperly(t *testing.T) {
 	}
 }
 
-func Test_ExistingEmployee_FieldsMappedProperly(t *testing.T) {
+func Test_CreateEmployee_FieldsMappedProperly(t *testing.T) {
 
 	dateOfBirth, _ := time.Parse(time.DateOnly, "1990-12-11")
 	startDate, _ := time.Parse(time.DateOnly, "2025-10-24")
 	id := uuid.New()
-	employee := employees.ExistingEmployee(
+	employee := employees.CreateEmployee(
 		id,
 		"TEST_PayrollNumber",
 		"TEST_Forenames",
