@@ -1,0 +1,35 @@
+version: '3'
+services:
+  api:
+    restart: always
+    image: employees_import_api:v1
+    build:
+      context: ../
+      dockerfile: docker/EmployeesImportApi.Dockerfile
+    container_name: employees_import_api
+    ports: 
+        - '9898:3000'
+    environment:
+        - DATABASE_CONNECTION_STRING=postgres://postgres:admin69874@db:5432/employees_import
+        - PORT=3000
+    depends_on:
+        - db
+        
+  db:
+    restart: always
+    image: employees_import_db:v1
+    build:
+      context: ../
+      dockerfile: docker/Db.Dockerfile
+    container_name: employees_import_db
+    environment:
+        - POSTGRES_USER=postgres
+        - POSTGRES_PASSWORD=admin69874
+        - POSTGRES_DB=employees_import
+    ports:
+        - "9899:5432"
+    volumes:
+        - pg-data:/var/lib/postgresql/data
+        
+volumes:
+  pg-data:
