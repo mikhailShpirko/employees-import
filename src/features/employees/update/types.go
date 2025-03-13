@@ -31,5 +31,5 @@ type EmployeeNotExists struct {
 type IUpdateEmployeeRepository interface {
 	IsIdExist(id uuid.UUID) (bool, error)
 	IsPayrollNumberExistExclusive(payrollNumber string, excludeId uuid.UUID) (bool, error)
-	Update(employee *employees.Employee) error
+	Update(employee employees.Employee) error
 }

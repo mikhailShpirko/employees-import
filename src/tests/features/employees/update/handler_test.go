@@ -44,7 +44,7 @@ func Test_Employees_Update_Handle_InvalidValidData_ValidationErrors(t *testing.T
 
 	unitOfWork := common.MockSuccessUnitOfWork{}
 
-	result, err := update_handler.Handle(&employee, &repository, &unitOfWork)
+	result, err := update_handler.Handle(employee, &repository, &unitOfWork)
 
 	if err != nil {
 		t.Fatalf(`Update Employee Handler returned error %v`, err)

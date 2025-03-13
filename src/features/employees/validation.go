@@ -40,7 +40,7 @@ func (validationError EMPLOYEE_VALIDATION_ERROR) String() string {
 		"DATE_OF_BIRTH_AFTER_START_DATE"}[validationError]
 }
 
-func Validate(employeeData *EmployeeData, today time.Time) []EMPLOYEE_VALIDATION_ERROR {
+func Validate(employeeData EmployeeData, today time.Time) []EMPLOYEE_VALIDATION_ERROR {
 	validationErrors := []EMPLOYEE_VALIDATION_ERROR{}
 
 	if common.IsStringEmptyOrWhiteSpace(employeeData.PayrollNumber) {

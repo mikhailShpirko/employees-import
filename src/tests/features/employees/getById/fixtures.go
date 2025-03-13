@@ -11,19 +11,19 @@ import (
 type MockGetByIdEmployeeExistsRepository struct {
 }
 
-func (repository *MockGetByIdEmployeeExistsRepository) GetById(id uuid.UUID) (bool, *employees.Employee, error) {
+func (repository *MockGetByIdEmployeeExistsRepository) GetById(id uuid.UUID) (bool, employees.Employee, error) {
 	return true, common.ValidExistingEmployee(uuid.New()), nil
 }
 
 type MockGetByIdEmployeeNotExistsRepository struct {
 }
 
-func (repository *MockGetByIdEmployeeNotExistsRepository) GetById(id uuid.UUID) (bool, *employees.Employee, error) {
-	return false, nil, nil
+func (repository *MockGetByIdEmployeeNotExistsRepository) GetById(id uuid.UUID) (bool, employees.Employee, error) {
+	return false, employees.Employee{}, nil
 }
 
 type MockFailGetByIdGetByIdEmployeeRepository struct{}
 
-func (repository *MockFailGetByIdGetByIdEmployeeRepository) GetById(id uuid.UUID) (bool, *employees.Employee, error) {
-	return true, nil, errors.New("FailGetById")
+func (repository *MockFailGetByIdGetByIdEmployeeRepository) GetById(id uuid.UUID) (bool, employees.Employee, error) {
+	return true, employees.Employee{}, errors.New("FailGetById")
 }

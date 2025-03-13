@@ -8,7 +8,7 @@ import (
 	"github.com/google/uuid"
 )
 
-func ValidNewEmployee() *employees.EmployeeData {
+func ValidNewEmployee() employees.EmployeeData {
 	dateOfBirth, _ := time.Parse(time.DateOnly, "1990-12-11")
 	startDate, _ := time.Parse(time.DateOnly, "2025-10-24")
 
@@ -27,10 +27,10 @@ func ValidNewEmployee() *employees.EmployeeData {
 	return employee
 }
 
-func ValidExistingEmployee(id uuid.UUID) *employees.Employee {
+func ValidExistingEmployee(id uuid.UUID) employees.Employee {
 	employeeData := ValidNewEmployee()
 
-	return &employees.Employee{Id: id, EmployeeData: *employeeData}
+	return employees.Employee{Id: id, EmployeeData: employeeData}
 }
 
 type MockSuccessUnitOfWork struct{}

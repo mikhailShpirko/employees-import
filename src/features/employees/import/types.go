@@ -45,6 +45,6 @@ type ValidationErrors struct {
 
 type IImportEmployeeRepository interface {
 	GetPayrollNumberToIdMap() (map[string]uuid.UUID, error)
-	Create(employee *employees.Employee) error
-	Update(employee *employees.Employee) error
+	Create(employee employees.Employee) error
+	Update(employee employees.Employee) error
 }

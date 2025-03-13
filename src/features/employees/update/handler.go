@@ -7,11 +7,11 @@ import (
 	"time"
 )
 
-func Handle(employee *employees.Employee,
+func Handle(employee employees.Employee,
 	repository IUpdateEmployeeRepository,
 	unitOfWork common_types.IUnitOfWork) (IUpdateEmployeeResult, error) {
 
-	validationErrors := employees.Validate(&employee.EmployeeData, time.Now())
+	validationErrors := employees.Validate(employee.EmployeeData, time.Now())
 
 	if validationErrors != nil {
 		return ValidationErrors{Errors: validationErrors}, nil

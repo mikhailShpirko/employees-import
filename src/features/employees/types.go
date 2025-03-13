@@ -36,7 +36,7 @@ func CreateEmployeeData(
 	addressLine2 string,
 	postcode string,
 	email string,
-	startDate time.Time) *EmployeeData {
+	startDate time.Time) EmployeeData {
 
 	var employee EmployeeData
 	employee.PayrollNumber = payrollNumber
@@ -51,7 +51,7 @@ func CreateEmployeeData(
 	employee.Email = email
 	employee.StartDate = startDate
 
-	return &employee
+	return employee
 }
 
 func CreateEmployee(
@@ -66,10 +66,10 @@ func CreateEmployee(
 	addressLine2 string,
 	postcode string,
 	email string,
-	startDate time.Time) *Employee {
+	startDate time.Time) Employee {
 
 	var employee Employee
-	employee.EmployeeData = *CreateEmployeeData(payrollNumber,
+	employee.EmployeeData = CreateEmployeeData(payrollNumber,
 		forenames,
 		surname,
 		dateOfBirth,
@@ -83,5 +83,5 @@ func CreateEmployee(
 
 	employee.Id = id
 
-	return &employee
+	return employee
 }

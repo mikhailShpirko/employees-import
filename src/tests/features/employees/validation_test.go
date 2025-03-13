@@ -23,7 +23,7 @@ func Test_ValidateEmployee_EmptyRequiredFields_ErrorsReturned(t *testing.T) {
 
 	today, _ := time.Parse(time.DateOnly, "2024-02-16")
 
-	errors := employees.Validate(&employee, today)
+	errors := employees.Validate(employee, today)
 	if errors == nil {
 		t.Fatalf(`Validate didn't return any errors`)
 	}

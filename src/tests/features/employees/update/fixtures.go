@@ -20,7 +20,7 @@ func (repository *MockUpdateEmployeeRepository) IsIdExist(id uuid.UUID) (bool, e
 	return repository.IdExists, nil
 }
 
-func (repository *MockUpdateEmployeeRepository) Update(employee *employees.Employee) error {
+func (repository *MockUpdateEmployeeRepository) Update(employee employees.Employee) error {
 	return nil
 }
 
@@ -34,7 +34,7 @@ func (repository *MockFailPayrollNumberExistsUpdateEmployeeRepository) IsIdExist
 	return true, nil
 }
 
-func (repository *MockFailPayrollNumberExistsUpdateEmployeeRepository) Update(employee *employees.Employee) error {
+func (repository *MockFailPayrollNumberExistsUpdateEmployeeRepository) Update(employee employees.Employee) error {
 	return nil
 }
 
@@ -48,7 +48,7 @@ func (repository *MockFailIdExistsUpdateEmployeeRepository) IsIdExist(id uuid.UU
 	return false, errors.New("FailIdExists")
 }
 
-func (repository *MockFailIdExistsUpdateEmployeeRepository) Update(employee *employees.Employee) error {
+func (repository *MockFailIdExistsUpdateEmployeeRepository) Update(employee employees.Employee) error {
 	return nil
 }
 
@@ -62,6 +62,6 @@ func (repository *MockFailUpdateUpdateEmployeeRepository) IsIdExist(id uuid.UUID
 	return true, nil
 }
 
-func (repository *MockFailUpdateUpdateEmployeeRepository) Update(employee *employees.Employee) error {
+func (repository *MockFailUpdateUpdateEmployeeRepository) Update(employee employees.Employee) error {
 	return errors.New("FailUpdate")
 }

@@ -43,7 +43,7 @@ func Test_Employees_Create_Handle_InvalidValidData_ValidationErrors(t *testing.T
 
 	unitOfWork := common.MockSuccessUnitOfWork{}
 
-	result, err := create_handler.Handle(&employeeData, &repository, &unitOfWork)
+	result, err := create_handler.Handle(employeeData, &repository, &unitOfWork)
 
 	if err != nil {
 		t.Fatalf(`Create Employee Handler returned error %v`, err)
