@@ -2,7 +2,7 @@ package tests
 
 import (
 	"employees-import/features/employees"
-	import_handler "employees-import/features/employees/import"
+	employees_import "employees-import/features/employees/import"
 	common "employees-import/tests/features/employees"
 	"slices"
 	"testing"
@@ -23,38 +23,39 @@ func Test_Employees_Update_Import_ValidData_SuccessfullyImported(t *testing.T) {
 
 	unitOfWork := common.MockSuccessUnitOfWork{}
 
-	result, err := import_handler.Handle([]employees.EmployeeData{existingEmployee.EmployeeData, newEmployee}, &repository, &unitOfWork)
+	result, err := employees_import.Handle([]employees.EmployeeData{existingEmployee.EmployeeData, newEmployee}, &repository, &unitOfWork)
 
 	if err != nil {
 		t.Fatalf(`Import Employee Handler returned error %v`, err)
 	}
 
-	switch importResult := result.(type) {
-	case import_handler.SuccessfullyImported:
-		if len(importResult.Result) != 2 {
-			t.Fatalf(`Expected 2 successful imports, but returned %v`, importResult.Result)
-		}
-
-		if !slices.Contains(importResult.Result, import_handler.EmployeeImportResult{PayrollNumber: existingEmployee.PayrollNumber, Status: import_handler.EMPLOYEE_IMPORT_STATUS_UPDATED, Id: existingEmployee.Id}) {
-			t.Fatalf(`%v expected to be updated. Full result %v`, existingEmployee.PayrollNumber, importResult.Result)
-		}
-
-		hasCreated := false
-		for _, res := range importResult.Result {
-			if res.PayrollNumber == newEmployee.PayrollNumber && res.Status == import_handler.EMPLOYEE_IMPORT_STATUS_CREATED {
-				hasCreated = true
-				break
+	employees_import.Match(result,
+		func(imported employees_import.SuccessfullyImported) error {
+			if len(imported.Result) != 2 {
+				t.Fatalf(`Expected 2 successful imports, but returned %v`, imported.Result)
 			}
-		}
 
-		if !hasCreated {
-			t.Fatalf(`%v expected to be created. Full result %v`, existingEmployee.PayrollNumber, importResult.Result)
-		}
-	case import_handler.ValidationErrors:
-		t.Fatalf(`Unexpected result ValidationErrors %v`, importResult.Errors)
-	default:
-		t.Fatalf("Unsupported result")
-	}
+			if !slices.Contains(imported.Result, employees_import.EmployeeImportResult{PayrollNumber: existingEmployee.PayrollNumber, Status: employees_import.EMPLOYEE_IMPORT_STATUS_UPDATED, Id: existingEmployee.Id}) {
+				t.Fatalf(`%v expected to be updated. Full result %v`, existingEmployee.PayrollNumber, imported.Result)
+			}
+
+			hasCreated := false
+			for _, res := range imported.Result {
+				if res.PayrollNumber == newEmployee.PayrollNumber && res.Status == employees_import.EMPLOYEE_IMPORT_STATUS_CREATED {
+					hasCreated = true
+					break
+				}
+			}
+
+			if !hasCreated {
+				t.Fatalf(`%v expected to be created. Full result %v`, existingEmployee.PayrollNumber, imported.Result)
+			}
+			return nil
+		},
+		func(validationErrors employees_import.ValidationErrors) error {
+			t.Fatalf(`Unexpected result ValidationErrors %v`, validationErrors.Errors)
+			return nil
+		})
 }
 
 func Test_Employees_Update_Import_InvalidData_ValidationErrors(t *testing.T) {
@@ -68,24 +69,23 @@ func Test_Employees_Update_Import_InvalidData_ValidationErrors(t *testing.T) {
 
 	unitOfWork := common.MockSuccessUnitOfWork{}
 
-	result, err := import_handler.Handle([]employees.EmployeeData{employee1, employee2}, &repository, &unitOfWork)
+	result, err := employees_import.Handle([]employees.EmployeeData{employee1, employee2}, &repository, &unitOfWork)
 
 	if err != nil {
 		t.Fatalf(`Import Employee Handler returned error %v`, err)
 	}
 
-	switch importResult := result.(type) {
-	case import_handler.SuccessfullyImported:
-		t.Fatalf(`Unexpected result SuccessfullyImported %v`, importResult.Result)
-
-		return
-	case import_handler.ValidationErrors:
-		if len(importResult.Errors) != 2 {
-			t.Fatalf(`Expected 2 successful imports, but returned %v`, importResult.Errors)
-		}
-	default:
-		t.Fatalf("Unsupported result")
-	}
+	employees_import.Match(result,
+		func(imported employees_import.SuccessfullyImported) error {
+			t.Fatalf(`Unexpected result SuccessfullyImported %v`, imported.Result)
+			return nil
+		},
+		func(validationErrors employees_import.ValidationErrors) error {
+			if len(validationErrors.Errors) != 2 {
+				t.Fatalf(`Expected 2 validation errors, but returned %v`, validationErrors.Errors)
+			}
+			return nil
+		})
 }
 
 func Test_Employees_Update_Import_PartiallyInvalidData_ValidationErrors(t *testing.T) {
@@ -100,23 +100,23 @@ func Test_Employees_Update_Import_PartiallyInvalidData_ValidationErrors(t *testi
 
 	unitOfWork := common.MockSuccessUnitOfWork{}
 
-	result, err := import_handler.Handle([]employees.EmployeeData{employee1, employee2, validEmployee}, &repository, &unitOfWork)
+	result, err := employees_import.Handle([]employees.EmployeeData{employee1, employee2, validEmployee}, &repository, &unitOfWork)
 
 	if err != nil {
 		t.Fatalf(`Import Employee Handler returned error %v`, err)
 	}
 
-	switch importResult := result.(type) {
-	case import_handler.SuccessfullyImported:
-		t.Fatalf(`Unexpected result SuccessfullyImported %v`, importResult.Result)
-		return
-	case import_handler.ValidationErrors:
-		if len(importResult.Errors) != 2 {
-			t.Fatalf(`Expected 2 successful imports, but returned %v`, importResult.Errors)
-		}
-	default:
-		t.Fatalf("Unsupported result")
-	}
+	employees_import.Match(result,
+		func(imported employees_import.SuccessfullyImported) error {
+			t.Fatalf(`Unexpected result SuccessfullyImported %v`, imported.Result)
+			return nil
+		},
+		func(validationErrors employees_import.ValidationErrors) error {
+			if len(validationErrors.Errors) != 2 {
+				t.Fatalf(`Expected 2 validation errors, but returned %v`, validationErrors.Errors)
+			}
+			return nil
+		})
 }
 
 func Test_Employees_Update_Import_GetPayrollNumberToIdMapReturnsError_Error(t *testing.T) {
@@ -130,7 +130,7 @@ func Test_Employees_Update_Import_GetPayrollNumberToIdMapReturnsError_Error(t *t
 
 	unitOfWork := common.MockSuccessUnitOfWork{}
 
-	result, err := import_handler.Handle([]employees.EmployeeData{existingEmployee.EmployeeData, newEmployee}, &repository, &unitOfWork)
+	result, err := employees_import.Handle([]employees.EmployeeData{existingEmployee.EmployeeData, newEmployee}, &repository, &unitOfWork)
 
 	if err == nil {
 		t.Fatalf(`Import Employee Handler didn't return error %v`, result)
@@ -154,7 +154,7 @@ func Test_Employees_Update_Import_CreateReturnsError_Error(t *testing.T) {
 
 	unitOfWork := common.MockSuccessUnitOfWork{}
 
-	result, err := import_handler.Handle([]employees.EmployeeData{existingEmployee.EmployeeData, newEmployee}, &repository, &unitOfWork)
+	result, err := employees_import.Handle([]employees.EmployeeData{existingEmployee.EmployeeData, newEmployee}, &repository, &unitOfWork)
 
 	if err == nil {
 		t.Fatalf(`Import Employee Handler didn't return error %v`, result)
@@ -178,7 +178,7 @@ func Test_Employees_Update_Import_UpdateReturnsError_Error(t *testing.T) {
 
 	unitOfWork := common.MockSuccessUnitOfWork{}
 
-	result, err := import_handler.Handle([]employees.EmployeeData{existingEmployee.EmployeeData, newEmployee}, &repository, &unitOfWork)
+	result, err := employees_import.Handle([]employees.EmployeeData{existingEmployee.EmployeeData, newEmployee}, &repository, &unitOfWork)
 
 	if err == nil {
 		t.Fatalf(`Import Employee Handler didn't return error %v`, result)
@@ -202,7 +202,7 @@ func Test_Employees_Update_Import_UnitOfWorkReturnsError_Error(t *testing.T) {
 
 	unitOfWork := common.MockFailUnitOfWork{}
 
-	result, err := import_handler.Handle([]employees.EmployeeData{existingEmployee.EmployeeData, newEmployee}, &repository, &unitOfWork)
+	result, err := employees_import.Handle([]employees.EmployeeData{existingEmployee.EmployeeData, newEmployee}, &repository, &unitOfWork)
 
 	if err == nil {
 		t.Fatalf(`Import Employee Handler didn't return error %v`, result)

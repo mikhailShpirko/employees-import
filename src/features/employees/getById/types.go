@@ -8,16 +8,25 @@ import (
 
 type IGetByIdEmployeeResult interface{}
 
-type BaseGetByIdEmployeeResult struct{}
+func Match[T any](result IGetByIdEmployeeResult,
+	existsDelegate func(exists EmployeeExists) T,
+	notExistsDelegate func(notExists EmployeeNotExists) T) T {
+
+	switch getByIdResult := result.(type) {
+	case EmployeeExists:
+		return existsDelegate(getByIdResult)
+	case EmployeeNotExists:
+		return notExistsDelegate(getByIdResult)
+	default:
+		panic("Unsupported get by id result")
+	}
+}
 
 type EmployeeExists struct {
-	BaseGetByIdEmployeeResult
-
 	Employee employees.Employee
 }
 
 type EmployeeNotExists struct {
-	BaseGetByIdEmployeeResult
 }
 
 type IGetByIdEmployeeRepository interface {

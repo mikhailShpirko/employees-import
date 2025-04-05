@@ -55,20 +55,21 @@ func HandleRequest(c *fiber.Ctx) error {
 		return err
 	}
 
-	switch updateResult := result.(type) {
-	case employees_update.Updated:
-		return c.Status(fiber.StatusNoContent).JSON("")
-	case employees_update.PayrollNumberAlreadyExists:
-		return fiber.NewError(fiber.StatusConflict, "Payroll number already exists")
-	case employees_update.ValidationErrors:
-		errorCodes := []string{}
-		for _, errorCode := range updateResult.Errors {
-			errorCodes = append(errorCodes, errorCode.String())
-		}
-		return c.Status(fiber.StatusBadRequest).JSON(ErrorUpdatingEmployee{ErrorCodes: errorCodes})
-	case employees_update.EmployeeNotExists:
-		return fiber.NewError(fiber.StatusNotFound, "Employee not found")
-	default:
-		return fiber.NewError(fiber.StatusInternalServerError, "Unsupported update result")
-	}
+	return employees_update.Match(result,
+		func(updated employees_update.Updated) error {
+			return c.Status(fiber.StatusNoContent).JSON("")
+		},
+		func(payrollExists employees_update.PayrollNumberAlreadyExists) error {
+			return c.Status(fiber.StatusConflict).JSON("Payroll number already exists")
+		},
+		func(validationErrors employees_update.ValidationErrors) error {
+			errorCodes := []string{}
+			for _, errorCode := range validationErrors.Errors {
+				errorCodes = append(errorCodes, errorCode.String())
+			}
+			return c.Status(fiber.StatusBadRequest).JSON(ErrorUpdatingEmployee{ErrorCodes: errorCodes})
+		},
+		func(notExists employees_update.EmployeeNotExists) error {
+			return c.Status(fiber.StatusNotFound).JSON("Employee not found")
+		})
 }

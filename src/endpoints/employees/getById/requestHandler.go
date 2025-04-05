@@ -26,31 +26,30 @@ func HandleRequest(c *fiber.Ctx) error {
 
 	defer repository.CloseConnection()
 
-	employeeResult, getByIdError := employees_getById.Handle(id, repository)
+	result, getByIdError := employees_getById.Handle(id, repository)
 
 	if getByIdError != nil {
 		return getByIdError
 	}
 
-	switch result := employeeResult.(type) {
-	case employees_getById.EmployeeExists:
-		response := EmployeeData{}
-		response.PayrollNumber = result.Employee.PayrollNumber
-		response.Forenames = result.Employee.Forenames
-		response.Surname = result.Employee.Surname
-		response.DateOfBirth = custom_types.DateOnly{Time: result.Employee.DateOfBirth}
-		response.TelephoneNumber = result.Employee.TelephoneNumber
-		response.MobileNumber = result.Employee.MobileNumber
-		response.AddressLine1 = result.Employee.AddressLine1
-		response.AddressLine2 = result.Employee.AddressLine2
-		response.Postcode = result.Employee.Postcode
-		response.Email = result.Employee.Email
-		response.StartDate = custom_types.DateOnly{Time: result.Employee.StartDate}
+	return employees_getById.Match(result,
+		func(exists employees_getById.EmployeeExists) error {
+			response := EmployeeData{}
+			response.PayrollNumber = exists.Employee.PayrollNumber
+			response.Forenames = exists.Employee.Forenames
+			response.Surname = exists.Employee.Surname
+			response.DateOfBirth = custom_types.DateOnly{Time: exists.Employee.DateOfBirth}
+			response.TelephoneNumber = exists.Employee.TelephoneNumber
+			response.MobileNumber = exists.Employee.MobileNumber
+			response.AddressLine1 = exists.Employee.AddressLine1
+			response.AddressLine2 = exists.Employee.AddressLine2
+			response.Postcode = exists.Employee.Postcode
+			response.Email = exists.Employee.Email
+			response.StartDate = custom_types.DateOnly{Time: exists.Employee.StartDate}
 
-		return c.Status(fiber.StatusOK).JSON(response)
-	case employees_getById.EmployeeNotExists:
-		return fiber.NewError(fiber.StatusNotFound, "Employee not found")
-	default:
-		return fiber.NewError(fiber.StatusInternalServerError, "Unsupported get by id result")
-	}
+			return c.Status(fiber.StatusOK).JSON(response)
+		},
+		func(notExists employees_getById.EmployeeNotExists) error {
+			return c.Status(fiber.StatusNotFound).JSON("Employee not found")
+		})
 }

@@ -46,18 +46,18 @@ func HandleRequest(c *fiber.Ctx) error {
 		return err
 	}
 
-	switch createResult := result.(type) {
-	case employees_create.Created:
-		return c.Status(fiber.StatusCreated).JSON(EmployeeCreated{Id: createResult.Id})
-	case employees_create.PayrollNumberAlreadyExists:
-		return fiber.NewError(fiber.StatusConflict, "Payroll number already exists")
-	case employees_create.ValidationErrors:
-		errorCodes := []string{}
-		for _, errorCode := range createResult.Errors {
-			errorCodes = append(errorCodes, errorCode.String())
-		}
-		return c.Status(fiber.StatusBadRequest).JSON(ErrorCreatingEmployee{ErrorCodes: errorCodes})
-	default:
-		return fiber.NewError(fiber.StatusInternalServerError, "Unsupported create result")
-	}
+	return employees_create.Match(result,
+		func(created employees_create.Created) error {
+			return c.Status(fiber.StatusCreated).JSON(EmployeeCreated{Id: created.Id})
+		},
+		func(payrollExists employees_create.PayrollNumberAlreadyExists) error {
+			return c.Status(fiber.StatusConflict).JSON("Payroll number already exists")
+		},
+		func(validationErrors employees_create.ValidationErrors) error {
+			errorCodes := []string{}
+			for _, errorCode := range validationErrors.Errors {
+				errorCodes = append(errorCodes, errorCode.String())
+			}
+			return c.Status(fiber.StatusBadRequest).JSON(ErrorCreatingEmployee{ErrorCodes: errorCodes})
+		})
 }

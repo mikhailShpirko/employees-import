@@ -32,12 +32,11 @@ func HandleRequest(c *fiber.Ctx) error {
 		return err
 	}
 
-	switch result.(type) {
-	case employees_delete.Deleted:
-		return c.Status(fiber.StatusNoContent).JSON("")
-	case employees_delete.EmployeeNotExists:
-		return fiber.NewError(fiber.StatusNotFound, "Employee not found")
-	default:
-		return fiber.NewError(fiber.StatusInternalServerError, "Unsupported delete result")
-	}
+	return employees_delete.Match(result,
+		func(_ employees_delete.Deleted) error {
+			return c.Status(fiber.StatusNoContent).JSON("")
+		},
+		func(employeeNotExists employees_delete.EmployeeNotExists) error {
+			return c.Status(fiber.StatusNotFound).JSON("Employee not found")
+		})
 }

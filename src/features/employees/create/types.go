@@ -8,21 +8,32 @@ import (
 
 type ICreateEmployeeResult interface{}
 
-type BaseCreateEmployeeResult struct{}
+func Match[T any](result ICreateEmployeeResult,
+	createdDelegate func(created Created) T,
+	payrollExistsDelegate func(payrollExists PayrollNumberAlreadyExists) T,
+	validationErrorsDelegate func(validationErrors ValidationErrors) T) T {
+
+	switch createResult := result.(type) {
+	case Created:
+		return createdDelegate(createResult)
+	case PayrollNumberAlreadyExists:
+		return payrollExistsDelegate(createResult)
+	case ValidationErrors:
+		return validationErrorsDelegate(createResult)
+	default:
+		panic("Unsupported create result")
+	}
+}
 
 type Created struct {
-	BaseCreateEmployeeResult
 	Id uuid.UUID
 }
 
 type ValidationErrors struct {
-	BaseCreateEmployeeResult
-
 	Errors []employees.EMPLOYEE_VALIDATION_ERROR
 }
 
 type PayrollNumberAlreadyExists struct {
-	BaseCreateEmployeeResult
 }
 
 type ICreateEmployeeRepository interface {

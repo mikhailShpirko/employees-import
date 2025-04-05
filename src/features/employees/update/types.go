@@ -8,24 +8,37 @@ import (
 
 type IUpdateEmployeeResult interface{}
 
-type BaseUpdateEmployeeResult struct{}
+func Match[T any](result IUpdateEmployeeResult,
+	updatedDelegate func(updated Updated) T,
+	payrollExistsDelegate func(payrollExists PayrollNumberAlreadyExists) T,
+	validationErrorsDelegate func(validationErrors ValidationErrors) T,
+	notExistsDelegate func(notExists EmployeeNotExists) T) T {
+
+	switch updateResult := result.(type) {
+	case Updated:
+		return updatedDelegate(updateResult)
+	case PayrollNumberAlreadyExists:
+		return payrollExistsDelegate(updateResult)
+	case ValidationErrors:
+		return validationErrorsDelegate(updateResult)
+	case EmployeeNotExists:
+		return notExistsDelegate(updateResult)
+	default:
+		panic("Unsupported update result")
+	}
+}
 
 type Updated struct {
-	BaseUpdateEmployeeResult
 }
 
 type ValidationErrors struct {
-	BaseUpdateEmployeeResult
-
 	Errors []employees.EMPLOYEE_VALIDATION_ERROR
 }
 
 type PayrollNumberAlreadyExists struct {
-	BaseUpdateEmployeeResult
 }
 
 type EmployeeNotExists struct {
-	BaseUpdateEmployeeResult
 }
 
 type IUpdateEmployeeRepository interface {

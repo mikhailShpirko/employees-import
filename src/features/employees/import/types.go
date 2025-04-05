@@ -31,15 +31,25 @@ type InvalidEmployeeData struct {
 
 type IImportEmployeesResult interface{}
 
-type BaseImportEmployeesResult struct{}
+func Match[T any](result IImportEmployeesResult,
+	importedDelegate func(imported SuccessfullyImported) T,
+	validationErrorsDelegate func(validationErrors ValidationErrors) T) T {
+
+	switch importResult := result.(type) {
+	case SuccessfullyImported:
+		return importedDelegate(importResult)
+	case ValidationErrors:
+		return validationErrorsDelegate(importResult)
+	default:
+		panic("Unsupported import result")
+	}
+}
 
 type SuccessfullyImported struct {
-	BaseImportEmployeesResult
 	Result []EmployeeImportResult
 }
 
 type ValidationErrors struct {
-	BaseImportEmployeesResult
 	Errors []InvalidEmployeeData
 }
 

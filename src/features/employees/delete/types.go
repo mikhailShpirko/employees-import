@@ -6,14 +6,24 @@ import (
 
 type IDeleteEmployeeResult interface{}
 
-type BaseDeleteEmployeeResult struct{}
+func Match[T any](result IDeleteEmployeeResult,
+	deletedDelegate func(deleted Deleted) T,
+	employeeNotExistsDelegate func(employeeNotExists EmployeeNotExists) T) T {
+
+	switch deleteResult := result.(type) {
+	case Deleted:
+		return deletedDelegate(deleteResult)
+	case EmployeeNotExists:
+		return employeeNotExistsDelegate(deleteResult)
+	default:
+		panic("Unsupported delete result")
+	}
+}
 
 type Deleted struct {
-	BaseDeleteEmployeeResult
 }
 
 type EmployeeNotExists struct {
-	BaseDeleteEmployeeResult
 }
 
 type IDeleteEmployeeRepository interface {

@@ -52,26 +52,25 @@ func HandleRequest(c *fiber.Ctx) error {
 			return importError
 		}
 
-		switch result := importResult.(type) {
-		case employees_import.SuccessfullyImported:
-			response := []EmployeeImportResult{}
-			for _, employeeImportResult := range result.Result {
-				response = append(response, EmployeeImportResult{PayrollNumber: employeeImportResult.PayrollNumber, StatusCode: employeeImportResult.Status.String(), Id: employeeImportResult.Id})
-			}
-			return c.Status(fiber.StatusOK).JSON(response)
-		case employees_import.ValidationErrors:
-			response := []ErrorImportingEmployee{}
-			for _, validationErrors := range result.Errors {
-				errorCodes := []string{}
-				for _, validationError := range validationErrors.ValidationErrors {
-					errorCodes = append(errorCodes, validationError.String())
+		return employees_import.Match(importResult,
+			func(imported employees_import.SuccessfullyImported) error {
+				response := []EmployeeImportResult{}
+				for _, employeeImportResult := range imported.Result {
+					response = append(response, EmployeeImportResult{PayrollNumber: employeeImportResult.PayrollNumber, StatusCode: employeeImportResult.Status.String(), Id: employeeImportResult.Id})
 				}
-				response = append(response, ErrorImportingEmployee{PayrollNumber: validationErrors.PayrollNumber, ErrorCodes: errorCodes})
-			}
-			return c.Status(fiber.StatusBadRequest).JSON(response)
-		default:
-			return fiber.NewError(fiber.StatusInternalServerError, "Unsupported import result")
-		}
+				return c.Status(fiber.StatusOK).JSON(response)
+			},
+			func(validationErrors employees_import.ValidationErrors) error {
+				response := []ErrorImportingEmployee{}
+				for _, validationErrors := range validationErrors.Errors {
+					errorCodes := []string{}
+					for _, validationError := range validationErrors.ValidationErrors {
+						errorCodes = append(errorCodes, validationError.String())
+					}
+					response = append(response, ErrorImportingEmployee{PayrollNumber: validationErrors.PayrollNumber, ErrorCodes: errorCodes})
+				}
+				return c.Status(fiber.StatusBadRequest).JSON(response)
+			})
 	case parsers.ErrorParsingEmployees:
 		response := []ErrorParsingLine{}
 		for lineNumber, errorCode := range parseResult.ErrorInLines {

@@ -2,7 +2,7 @@ package tests
 
 import (
 	employees "employees-import/features/employees"
-	update_handler "employees-import/features/employees/update"
+	employees_update "employees-import/features/employees/update"
 	common "employees-import/tests/features/employees"
 	"testing"
 
@@ -16,25 +16,29 @@ func Test_Employees_Update_Handle_ValidData_Updated(t *testing.T) {
 
 	unitOfWork := common.MockSuccessUnitOfWork{}
 
-	result, err := update_handler.Handle(employee, &repository, &unitOfWork)
+	result, err := employees_update.Handle(employee, &repository, &unitOfWork)
 
 	if err != nil {
 		t.Fatalf(`Update Employee Handler returned error %v`, err)
 		return
 	}
 
-	switch updateResult := result.(type) {
-	case update_handler.Updated:
-		return
-	case update_handler.PayrollNumberAlreadyExists:
-		t.Fatalf(`Unexpected result PayrollNumberAlreadyExists`)
-	case update_handler.ValidationErrors:
-		t.Fatalf(`Unexpected result ValidationErrors %v`, updateResult.Errors)
-	case update_handler.EmployeeNotExists:
-		t.Fatalf(`Unexpected result EmployeeNotExists`)
-	default:
-		t.Fatalf("Unsupported result")
-	}
+	employees_update.Match(result,
+		func(updated employees_update.Updated) error {
+			return nil
+		},
+		func(payrollExists employees_update.PayrollNumberAlreadyExists) error {
+			t.Fatalf(`Unexpected result PayrollNumberAlreadyExists`)
+			return nil
+		},
+		func(validationErrors employees_update.ValidationErrors) error {
+			t.Fatalf(`Unexpected result ValidationErrors %v`, validationErrors.Errors)
+			return nil
+		},
+		func(notExists employees_update.EmployeeNotExists) error {
+			t.Fatalf(`Unexpected result EmployeeNotExists`)
+			return nil
+		})
 }
 
 func Test_Employees_Update_Handle_InvalidValidData_ValidationErrors(t *testing.T) {
@@ -44,24 +48,28 @@ func Test_Employees_Update_Handle_InvalidValidData_ValidationErrors(t *testing.T
 
 	unitOfWork := common.MockSuccessUnitOfWork{}
 
-	result, err := update_handler.Handle(employee, &repository, &unitOfWork)
+	result, err := employees_update.Handle(employee, &repository, &unitOfWork)
 
 	if err != nil {
 		t.Fatalf(`Update Employee Handler returned error %v`, err)
 	}
 
-	switch result.(type) {
-	case update_handler.Updated:
-		t.Fatalf(`Unexpected result Updated`)
-	case update_handler.PayrollNumberAlreadyExists:
-		t.Fatalf(`Unexpected result PayrollNumberAlreadyExists`)
-	case update_handler.ValidationErrors:
-		return
-	case update_handler.EmployeeNotExists:
-		t.Fatalf(`Unexpected result EmployeeNotExists`)
-	default:
-		t.Fatalf("Unsupported result")
-	}
+	employees_update.Match(result,
+		func(updated employees_update.Updated) error {
+			t.Fatalf(`Unexpected result Updated`)
+			return nil
+		},
+		func(payrollExists employees_update.PayrollNumberAlreadyExists) error {
+			t.Fatalf(`Unexpected result PayrollNumberAlreadyExists`)
+			return nil
+		},
+		func(validationErrors employees_update.ValidationErrors) error {
+			return nil
+		},
+		func(notExists employees_update.EmployeeNotExists) error {
+			t.Fatalf(`Unexpected result EmployeeNotExists`)
+			return nil
+		})
 }
 
 func Test_Employees_Update_Handle_ExistingPayroll_PayrollNumberAlreadyExists(t *testing.T) {
@@ -71,24 +79,28 @@ func Test_Employees_Update_Handle_ExistingPayroll_PayrollNumberAlreadyExists(t *
 
 	unitOfWork := common.MockSuccessUnitOfWork{}
 
-	result, err := update_handler.Handle(employee, &repository, &unitOfWork)
+	result, err := employees_update.Handle(employee, &repository, &unitOfWork)
 
 	if err != nil {
 		t.Fatalf(`Update Employee Handler returned error %v`, err)
 	}
 
-	switch updateResult := result.(type) {
-	case update_handler.Updated:
-		t.Fatalf(`Unexpected result Updated`)
-	case update_handler.PayrollNumberAlreadyExists:
-		return
-	case update_handler.ValidationErrors:
-		t.Fatalf(`Unexpected result ValidationErrors %v`, updateResult.Errors)
-	case update_handler.EmployeeNotExists:
-		t.Fatalf(`Unexpected result EmployeeNotExists`)
-	default:
-		t.Fatalf("Unsupported result")
-	}
+	employees_update.Match(result,
+		func(updated employees_update.Updated) error {
+			t.Fatalf(`Unexpected result Updated`)
+			return nil
+		},
+		func(payrollExists employees_update.PayrollNumberAlreadyExists) error {
+			return nil
+		},
+		func(validationErrors employees_update.ValidationErrors) error {
+			t.Fatalf(`Unexpected result ValidationErrors %v`, validationErrors.Errors)
+			return nil
+		},
+		func(notExists employees_update.EmployeeNotExists) error {
+			t.Fatalf(`Unexpected result EmployeeNotExists`)
+			return nil
+		})
 }
 
 func Test_Employees_Update_Handle_NonExistingEmployee_EmployeeNotExists(t *testing.T) {
@@ -98,24 +110,28 @@ func Test_Employees_Update_Handle_NonExistingEmployee_EmployeeNotExists(t *testi
 
 	unitOfWork := common.MockSuccessUnitOfWork{}
 
-	result, err := update_handler.Handle(employee, &repository, &unitOfWork)
+	result, err := employees_update.Handle(employee, &repository, &unitOfWork)
 
 	if err != nil {
 		t.Fatalf(`Update Employee Handler returned error %v`, err)
 	}
 
-	switch updateResult := result.(type) {
-	case update_handler.Updated:
-		t.Fatalf(`Unexpected result Updated`)
-	case update_handler.PayrollNumberAlreadyExists:
-		t.Fatalf(`Unexpected result PayrollNumberAlreadyExists`)
-	case update_handler.ValidationErrors:
-		t.Fatalf(`Unexpected result ValidationErrors %v`, updateResult.Errors)
-	case update_handler.EmployeeNotExists:
-		return
-	default:
-		t.Fatalf("Unsupported result")
-	}
+	employees_update.Match(result,
+		func(updated employees_update.Updated) error {
+			t.Fatalf(`Unexpected result Updated`)
+			return nil
+		},
+		func(payrollExists employees_update.PayrollNumberAlreadyExists) error {
+			t.Fatalf(`Unexpected result PayrollNumberAlreadyExists`)
+			return nil
+		},
+		func(validationErrors employees_update.ValidationErrors) error {
+			t.Fatalf(`Unexpected result ValidationErrors %v`, validationErrors.Errors)
+			return nil
+		},
+		func(notExists employees_update.EmployeeNotExists) error {
+			return nil
+		})
 }
 
 func Test_Employees_Update_Handle_IsPayrollNumberExistReturnsError_Error(t *testing.T) {
@@ -125,7 +141,7 @@ func Test_Employees_Update_Handle_IsPayrollNumberExistReturnsError_Error(t *test
 
 	unitOfWork := common.MockSuccessUnitOfWork{}
 
-	result, err := update_handler.Handle(employee, &repository, &unitOfWork)
+	result, err := employees_update.Handle(employee, &repository, &unitOfWork)
 
 	if err == nil {
 		t.Fatalf(`Update Employee Handler didn't return error %v`, result)
@@ -143,7 +159,7 @@ func Test_Employees_Update_Handle_IsIdExistReturnsError_Error(t *testing.T) {
 
 	unitOfWork := common.MockSuccessUnitOfWork{}
 
-	result, err := update_handler.Handle(employee, &repository, &unitOfWork)
+	result, err := employees_update.Handle(employee, &repository, &unitOfWork)
 
 	if err == nil {
 		t.Fatalf(`Update Employee Handler didn't return error %v`, result)
@@ -161,7 +177,7 @@ func Test_Employees_Update_Handle_UpdateReturnsError_Error(t *testing.T) {
 
 	unitOfWork := common.MockSuccessUnitOfWork{}
 
-	result, err := update_handler.Handle(employee, &repository, &unitOfWork)
+	result, err := employees_update.Handle(employee, &repository, &unitOfWork)
 
 	if err == nil {
 		t.Fatalf(`Update Employee Handler didn't return error %v`, result)
@@ -179,7 +195,7 @@ func Test_Employees_Update_Handle_UnitOfWorkReturnsError_Error(t *testing.T) {
 
 	unitOfWork := common.MockFailUnitOfWork{}
 
-	result, err := update_handler.Handle(employee, &repository, &unitOfWork)
+	result, err := employees_update.Handle(employee, &repository, &unitOfWork)
 
 	if err == nil {
 		t.Fatalf(`Update Employee Handler didn't return error %v`, result)

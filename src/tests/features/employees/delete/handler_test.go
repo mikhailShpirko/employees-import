@@ -1,7 +1,7 @@
 package tests
 
 import (
-	delete_handler "employees-import/features/employees/delete"
+	employees_delete "employees-import/features/employees/delete"
 	common "employees-import/tests/features/employees"
 	"testing"
 
@@ -13,21 +13,21 @@ func Test_Employees_Delete_Handle_ExistingEmployee_Deleted(t *testing.T) {
 
 	unitOfWork := common.MockSuccessUnitOfWork{}
 
-	result, err := delete_handler.Handle(uuid.New(), &repository, &unitOfWork)
+	result, err := employees_delete.Handle(uuid.New(), &repository, &unitOfWork)
 
 	if err != nil {
 		t.Fatalf(`Delete Employee Handler returned error %v`, err)
 		return
 	}
 
-	switch result.(type) {
-	case delete_handler.Deleted:
-		return
-	case delete_handler.EmployeeNotExists:
-		t.Fatalf(`Unexpected result EmployeeNotExists`)
-	default:
-		t.Fatalf("Unsupported result")
-	}
+	employees_delete.Match(result,
+		func(_ employees_delete.Deleted) error {
+			return nil
+		},
+		func(employeeNotExists employees_delete.EmployeeNotExists) error {
+			t.Fatalf(`Unexpected result EmployeeNotExists`)
+			return nil
+		})
 }
 
 func Test_Employees_Delete_Handle_IdNotExists_EmployeeNotExists(t *testing.T) {
@@ -35,20 +35,20 @@ func Test_Employees_Delete_Handle_IdNotExists_EmployeeNotExists(t *testing.T) {
 
 	unitOfWork := common.MockSuccessUnitOfWork{}
 
-	result, err := delete_handler.Handle(uuid.New(), &repository, &unitOfWork)
+	result, err := employees_delete.Handle(uuid.New(), &repository, &unitOfWork)
 
 	if err != nil {
 		t.Fatalf(`Delete Employee Handler returned error %v`, err)
 	}
 
-	switch result.(type) {
-	case delete_handler.Deleted:
-		t.Fatalf(`Unexpected result Deleted`)
-	case delete_handler.EmployeeNotExists:
-		return
-	default:
-		t.Fatalf("Unsupported result")
-	}
+	employees_delete.Match(result,
+		func(_ employees_delete.Deleted) error {
+			t.Fatalf(`Unexpected result Deleted`)
+			return nil
+		},
+		func(employeeNotExists employees_delete.EmployeeNotExists) error {
+			return nil
+		})
 }
 
 func Test_Employees_Delete_Handle_IsIdExistReturnsError_Error(t *testing.T) {
@@ -57,7 +57,7 @@ func Test_Employees_Delete_Handle_IsIdExistReturnsError_Error(t *testing.T) {
 
 	unitOfWork := common.MockSuccessUnitOfWork{}
 
-	result, err := delete_handler.Handle(uuid.New(), &repository, &unitOfWork)
+	result, err := employees_delete.Handle(uuid.New(), &repository, &unitOfWork)
 
 	if err == nil {
 		t.Fatalf(`Delete Employee Handler didn't return error %v`, result)
@@ -73,7 +73,7 @@ func Test_Employees_Delete_Handle_DeleteReturnsError_Error(t *testing.T) {
 
 	unitOfWork := common.MockSuccessUnitOfWork{}
 
-	result, err := delete_handler.Handle(uuid.New(), &repository, &unitOfWork)
+	result, err := employees_delete.Handle(uuid.New(), &repository, &unitOfWork)
 
 	if err == nil {
 		t.Fatalf(`Delete Employee Handler didn't return error %v`, result)
@@ -89,7 +89,7 @@ func Test_Employees_Delete_Handle_UnitOfWorkReturnsError_Error(t *testing.T) {
 
 	unitOfWork := common.MockFailUnitOfWork{}
 
-	result, err := delete_handler.Handle(uuid.New(), &repository, &unitOfWork)
+	result, err := employees_delete.Handle(uuid.New(), &repository, &unitOfWork)
 
 	if err == nil {
 		t.Fatalf(`Delete Employee Handler didn't return error %v`, result)

@@ -2,7 +2,7 @@ package tests
 
 import (
 	employees "employees-import/features/employees"
-	create_handler "employees-import/features/employees/create"
+	employees_create "employees-import/features/employees/create"
 	common "employees-import/tests/features/employees"
 	"testing"
 
@@ -16,24 +16,27 @@ func Test_Employees_Create_Handle_ValidData_Created(t *testing.T) {
 
 	unitOfWork := common.MockSuccessUnitOfWork{}
 
-	result, err := create_handler.Handle(employeeData, &repository, &unitOfWork)
+	result, err := employees_create.Handle(employeeData, &repository, &unitOfWork)
 
 	if err != nil {
 		t.Fatalf(`Create Employee Handler returned error %v`, err)
 	}
 
-	switch createResult := result.(type) {
-	case create_handler.Created:
-		if createResult.Id == uuid.Nil {
-			t.Fatalf(`Id of created record is empty`)
-		}
-	case create_handler.PayrollNumberAlreadyExists:
-		t.Fatalf(`Unexpected result PayrollNumberAlreadyExists`)
-	case create_handler.ValidationErrors:
-		t.Fatalf(`Unexpected result ValidationErrors %v`, createResult.Errors)
-	default:
-		t.Fatalf("Unsupported result")
-	}
+	employees_create.Match(result,
+		func(created employees_create.Created) error {
+			if created.Id == uuid.Nil {
+				t.Fatalf(`Id of created record is empty`)
+			}
+			return nil
+		},
+		func(payrollExists employees_create.PayrollNumberAlreadyExists) error {
+			t.Fatalf(`Unexpected result PayrollNumberAlreadyExists`)
+			return nil
+		},
+		func(validationErrors employees_create.ValidationErrors) error {
+			t.Fatalf(`Unexpected result ValidationErrors %v`, validationErrors.Errors)
+			return nil
+		})
 }
 
 func Test_Employees_Create_Handle_InvalidValidData_ValidationErrors(t *testing.T) {
@@ -43,23 +46,24 @@ func Test_Employees_Create_Handle_InvalidValidData_ValidationErrors(t *testing.T
 
 	unitOfWork := common.MockSuccessUnitOfWork{}
 
-	result, err := create_handler.Handle(employeeData, &repository, &unitOfWork)
+	result, err := employees_create.Handle(employeeData, &repository, &unitOfWork)
 
 	if err != nil {
 		t.Fatalf(`Create Employee Handler returned error %v`, err)
 	}
 
-	switch result.(type) {
-	case create_handler.Created:
-		t.Fatalf(`Unexpected result Created`)
-	case create_handler.PayrollNumberAlreadyExists:
-		t.Fatalf(`Unexpected result PayrollNumberAlreadyExists`)
-	case create_handler.ValidationErrors:
-		return
-	default:
-		t.Fatalf("Unsupported result")
-		return
-	}
+	employees_create.Match(result,
+		func(created employees_create.Created) error {
+			t.Fatalf(`Unexpected result Created`)
+			return nil
+		},
+		func(payrollExists employees_create.PayrollNumberAlreadyExists) error {
+			t.Fatalf(`Unexpected result PayrollNumberAlreadyExists`)
+			return nil
+		},
+		func(validationErrors employees_create.ValidationErrors) error {
+			return nil
+		})
 }
 
 func Test_Employees_Create_Handle_ExistingPayroll_PayrollNumberAlreadyExists(t *testing.T) {
@@ -69,22 +73,24 @@ func Test_Employees_Create_Handle_ExistingPayroll_PayrollNumberAlreadyExists(t *
 
 	unitOfWork := common.MockSuccessUnitOfWork{}
 
-	result, err := create_handler.Handle(employeeData, &repository, &unitOfWork)
+	result, err := employees_create.Handle(employeeData, &repository, &unitOfWork)
 
 	if err != nil {
 		t.Fatalf(`Create Employee Handler returned error %v`, err)
 	}
 
-	switch createResult := result.(type) {
-	case create_handler.Created:
-		t.Fatalf(`Unexpected result Created`)
-	case create_handler.PayrollNumberAlreadyExists:
-		return
-	case create_handler.ValidationErrors:
-		t.Fatalf(`Unexpected result ValidationErrors %v`, createResult.Errors)
-	default:
-		t.Fatalf("Unsupported result")
-	}
+	employees_create.Match(result,
+		func(created employees_create.Created) error {
+			t.Fatalf(`Unexpected result Created`)
+			return nil
+		},
+		func(payrollExists employees_create.PayrollNumberAlreadyExists) error {
+			return nil
+		},
+		func(validationErrors employees_create.ValidationErrors) error {
+			t.Fatalf(`Unexpected result ValidationErrors %v`, validationErrors.Errors)
+			return nil
+		})
 }
 
 func Test_Employees_Create_Handle_IsPayrollNumberExistReturnsError_Error(t *testing.T) {
@@ -94,7 +100,7 @@ func Test_Employees_Create_Handle_IsPayrollNumberExistReturnsError_Error(t *test
 
 	unitOfWork := common.MockSuccessUnitOfWork{}
 
-	result, err := create_handler.Handle(employeeData, &repository, &unitOfWork)
+	result, err := employees_create.Handle(employeeData, &repository, &unitOfWork)
 
 	if err == nil {
 		t.Fatalf(`Create Employee Handler didn't return error %v`, result)
@@ -112,7 +118,7 @@ func Test_Employees_Create_Handle_CreateReturnsError_Error(t *testing.T) {
 
 	unitOfWork := common.MockSuccessUnitOfWork{}
 
-	result, err := create_handler.Handle(employeeData, &repository, &unitOfWork)
+	result, err := employees_create.Handle(employeeData, &repository, &unitOfWork)
 
 	if err == nil {
 		t.Fatalf(`Create Employee Handler didn't return error %v`, result)
@@ -130,7 +136,7 @@ func Test_Employees_Create_Handle_UnitOfWorkReturnsError_Error(t *testing.T) {
 
 	unitOfWork := common.MockFailUnitOfWork{}
 
-	result, err := create_handler.Handle(employeeData, &repository, &unitOfWork)
+	result, err := employees_create.Handle(employeeData, &repository, &unitOfWork)
 
 	if err == nil {
 		t.Fatalf(`Create Employee Handler didn't return error %v`, result)

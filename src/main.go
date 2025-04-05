@@ -8,6 +8,7 @@ import (
 
 	"github.com/gofiber/fiber/v2"
 	fiberLog "github.com/gofiber/fiber/v2/log"
+	fiberRecover "github.com/gofiber/fiber/v2/middleware/recover"
 	"github.com/joho/godotenv"
 )
 
@@ -20,6 +21,8 @@ func main() {
 	app := fiber.New(fiber.Config{
 		ErrorHandler: handleError,
 	})
+
+	app.Use(fiberRecover.New())
 
 	endpoints.RegisterEndpoints(app)
 
